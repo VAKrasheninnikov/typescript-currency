@@ -31,15 +31,26 @@ function App() {
     name: string;
     fullName: string;
     imageUrl: string;
-    price: number;
+    price: string;
     volume24Hour: number;
   }
 
   const [array, setArray] = React.useState<TCoin[]>([]);
   React.useEffect(() => {
-    axios.get('https://min-api.cryptocompare.com/data/top/totalvolfull?limit=10&tsym=USD').then(({ data: { Data } })=>{
-      setArray(Data)
+    axios.get('https://min-api.cryptocompare.com/data/top/totalvolfull?limit=10&tsym=USD').then(({ data }) => {
+      const coins = data.Data.map((obj: any) => {
+        const coin: TCoin = {
+          name: obj.CoinInfo.Name,
+          fullName: obj.CoinInfo.FullName,
+          imageUrl: `https://www.cryptocompare.com/${obj.CoinInfo.ImageUrl}`,
+          price: obj.DISPLAY.USD.PRICE,
+          volume24Hour: obj.RAW.USD.VOLUME24HOUR
+        }
+        return coin
+      })
+      setArray(coins)
     })
+
   }, [])
   console.log(array)
 
@@ -52,10 +63,11 @@ function App() {
               <Table sx={{ minWidth: 650 }} aria-label="simple table">
                 <TableHead>
                   <TableRow>
-                    <TableCell align="right">Full Name</TableCell>
-                    <TableCell align="right">Name</TableCell>
-                    <TableCell align="right">Price</TableCell>
-                    <TableCell align="right">Volume 24 hour</TableCell>
+                  <TableCell align="center"></TableCell>
+                    <TableCell align="center">Full Name</TableCell>
+                    <TableCell align="center">Name</TableCell>
+                    <TableCell align="center">Price</TableCell>
+                    <TableCell align="center">Volume 24 hour</TableCell>
                   </TableRow>
                 </TableHead>
                 <TableBody>
@@ -64,13 +76,17 @@ function App() {
                       key={el.name}
                       sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
                     >
-                      <TableCell component="th" scope="row">
-                        {el.CoinInfo.FullName}
+                      <TableCell align="center">
+                        <img src={el.imageUrl} width={30} height={30} />
                       </TableCell>
-                      <TableCell align="right">{el.name}</TableCell>
-                      <TableCell align="right">{el.name}</TableCell>
-                      <TableCell align="right">{el.name}</TableCell>
-                      <TableCell align="right">{el.name}</TableCell>
+                      <TableCell component="th" scope="row" align="center">
+                        {el.fullName}
+                      </TableCell>
+                      <TableCell align="center">
+                        {el.name}
+                      </TableCell>
+                      <TableCell align="center">{el.price}</TableCell>
+                      <TableCell align="center">{el.volume24Hour}</TableCell>
                     </TableRow>
                   ))}
                 </TableBody>
